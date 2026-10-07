@@ -5,9 +5,10 @@
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use keyquest_core::store::now_unix;
+use keyquest_core::store::{EXPORT_FORMAT, now_unix};
 use keyquest_core::{
-    KeyStat, LessonProgress, ProgressStore, SessionResult, SessionSummary, StoreError, StoreResult,
+    ExportedKey, ExportedSession, KeyStat, LessonProgress, ProgressExport, ProgressStore,
+    SessionResult, SessionSummary, StoreError, StoreResult,
 };
 use rusqlite::{Connection, OptionalExtension, params};
 
@@ -245,6 +246,148 @@ impl ProgressStore for SqliteProgressStore {
             )
             .map_err(store_err)
     }
+
+    fn export_all(&self) -> StoreResult<ProgressExport> {
+        let mut sessions = Vec::new();
+        let mut ids = Vec::new();
+        {
+            let mut stmt = self
+                .conn
+                .prepare(
+                    "SELECT id, lesson_id, layout, started_at, duration_ms, chars_total,
+                            errors, wpm_net, accuracy
+                     FROM sessions ORDER BY id",
+                )
+                .map_err(store_err)?;
+            let rows = stmt
+                .query_map([], |r| {
+                    Ok((
+                        r.get::<_, i64>(0)?,
+                        ExportedSession {
+                            lesson_id: r.get(1)?,
+                            layout: r.get(2)?,
+                            started_at: r.get(3)?,
+                            duration_ms: r.get::<_, i64>(4)?.max(0) as u64,
+                            chars_total: r.get(5)?,
+                            errors: r.get(6)?,
+                            wpm_net: r.get(7)?,
+                            accuracy: r.get(8)?,
+                            keys: Vec::new(),
+                        },
+                    ))
+                })
+                .map_err(store_err)?;
+            for row in rows {
+                let (id, s) = row.map_err(store_err)?;
+                ids.push(id);
+                sessions.push(s);
+            }
+        }
+        {
+            let mut stmt = self
+                .conn
+                .prepare("SELECT session_id, ch, hits, misses, avg_ms FROM key_stats ORDER BY session_id, ch")
+                .map_err(store_err)?;
+            let rows = stmt
+                .query_map([], |r| {
+                    Ok((
+                        r.get::<_, i64>(0)?,
+                        r.get::<_, String>(1)?,
+                        r.get::<_, u32>(2)?,
+                        r.get::<_, u32>(3)?,
+                        r.get::<_, Option<u32>>(4)?,
+                    ))
+                })
+                .map_err(store_err)?;
+            for row in rows {
+                let (session_id, ch, hits, misses, avg_ms) = row.map_err(store_err)?;
+                let (Ok(i), Some(ch)) = (ids.binary_search(&session_id), ch_from_sql(ch)) else {
+                    continue;
+                };
+                sessions[i].keys.push(ExportedKey {
+                    ch,
+                    hits,
+                    misses,
+                    avg_ms,
+                });
+            }
+        }
+        let mut stmt = self
+            .conn
+            .prepare("SELECT lesson_id, best_wpm, best_acc, completed FROM lesson_progress ORDER BY lesson_id")
+            .map_err(store_err)?;
+        let lessons = stmt
+            .query_map([], |r| {
+                Ok(LessonProgress {
+                    lesson_id: r.get(0)?,
+                    best_wpm: r.get(1)?,
+                    best_acc: r.get(2)?,
+                    completed: r.get(3)?,
+                })
+            })
+            .map_err(store_err)?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(store_err)?;
+        Ok(ProgressExport {
+            format: EXPORT_FORMAT,
+            sessions,
+            lessons,
+        })
+    }
+
+    fn import_all(&mut self, data: &ProgressExport) -> StoreResult<()> {
+        data.validate().map_err(StoreError::new)?;
+        let tx = self.conn.transaction().map_err(store_err)?;
+        tx.execute_batch(
+            "DELETE FROM key_stats; DELETE FROM sessions; DELETE FROM lesson_progress;",
+        )
+        .map_err(store_err)?;
+        {
+            let mut session = tx
+                .prepare(
+                    "INSERT INTO sessions
+                         (lesson_id, layout, started_at, duration_ms, chars_total, errors, wpm_net, accuracy)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                )
+                .map_err(store_err)?;
+            let mut key = tx
+                .prepare(
+                    "INSERT INTO key_stats (session_id, ch, hits, misses, avg_ms)
+                     VALUES (?1, ?2, ?3, ?4, ?5)",
+                )
+                .map_err(store_err)?;
+            for s in &data.sessions {
+                let id = session
+                    .insert(params![
+                        s.lesson_id,
+                        s.layout,
+                        s.started_at,
+                        s.duration_ms as i64,
+                        s.chars_total,
+                        s.errors,
+                        s.wpm_net,
+                        s.accuracy,
+                    ])
+                    .map_err(store_err)?;
+                for k in &s.keys {
+                    key.execute(params![id, k.ch.to_string(), k.hits, k.misses, k.avg_ms])
+                        .map_err(store_err)?;
+                }
+            }
+            let mut lesson = tx
+                .prepare(
+                    "INSERT INTO lesson_progress (lesson_id, best_wpm, best_acc, completed)
+                     VALUES (?1, ?2, ?3, ?4)",
+                )
+                .map_err(store_err)?;
+            for l in &data.lessons {
+                lesson
+                    .execute(params![l.lesson_id, l.best_wpm, l.best_acc, l.completed])
+                    .map_err(store_err)?;
+            }
+        }
+        tx.commit().map_err(store_err)
+    }
 }
 
 #[cfg(test)]
@@ -295,6 +438,25 @@ mod tests {
         let h = st.history("tr-q", 1).unwrap();
         assert_eq!(h.len(), 2);
         assert_eq!(h[0].chars_total, 11);
+
+        let exported = st.export_all().unwrap();
+        assert_eq!(exported.sessions.len(), 2);
+        assert_eq!(exported.sessions[0].keys.len(), 2);
+        let mut copy = SqliteProgressStore::open_in_memory().unwrap();
+        copy.save_session(&result("other", true, &[('x', true, 1)]))
+            .unwrap();
+        copy.import_all(&exported).unwrap();
+        assert_eq!(copy.export_all().unwrap(), exported);
+        assert!(copy.lesson_progress("other").unwrap().is_none());
+        assert_eq!(copy.key_stats("tr-q").unwrap(), stats);
+
+        // A failed import rolls back and keeps the old data.
+        let mut bad = exported.clone();
+        bad.sessions.push(bad.sessions[0].clone());
+        let duplicate = bad.sessions[1].keys[0].clone();
+        bad.sessions[1].keys.push(duplicate);
+        assert!(copy.import_all(&bad).is_err());
+        assert_eq!(copy.export_all().unwrap(), exported);
 
         st.reset().unwrap();
         assert!(st.history("tr-q", 1).unwrap().is_empty());

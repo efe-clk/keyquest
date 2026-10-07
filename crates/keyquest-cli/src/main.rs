@@ -29,6 +29,8 @@ Komutlar:
   stroke METİN         Her karakter için tuş, parmak ve değiştiriciyi göster
   stats [--days N]     Gelişim, en zayıf tuşlar ve parmaklar
   check                Düzen ve ders dosyalarını doğrula
+  export DOSYA         İlerlemeyi JSON dosyasına aktar
+  import DOSYA --yes   İlerlemeyi JSON dosyasından geri yükle (mevcut ilerlemenin yerine geçer)
   reset --yes          Tüm ilerlemeyi sil
 
 Seçenekler:
@@ -167,6 +169,28 @@ fn run() -> Result<(), String> {
             cmd_stats(&app, days)
         }
         "check" => args.finish().and_then(|_| cmd_check(&app)),
+        "export" => {
+            let file = args.positional().ok_or("export bir dosya yolu bekliyor")?;
+            args.finish()?;
+            let n = keyquest_data::export_to_file(&app.store()?, file.as_ref())
+                .map_err(|e| e.to_string())?;
+            println!("{n} oturum {file} dosyasına aktarıldı.");
+            Ok(())
+        }
+        "import" => {
+            let file = args.positional().ok_or("import bir dosya yolu bekliyor")?;
+            if !args.flag("--yes") {
+                return Err(
+                    "içe aktarma mevcut ilerlemenin yerine geçer; onaylamak için --yes ekleyin"
+                        .into(),
+                );
+            }
+            args.finish()?;
+            let n = keyquest_data::import_from_file(&mut app.store()?, file.as_ref())
+                .map_err(|e| e.to_string())?;
+            println!("{n} oturum içe aktarıldı.");
+            Ok(())
+        }
         "reset" => {
             if !args.flag("--yes") {
                 return Err("ilerlemeyi silmek için --yes ekleyin".into());

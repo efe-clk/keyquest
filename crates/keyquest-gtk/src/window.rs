@@ -400,10 +400,8 @@ impl Window {
         let config = state.config.clone();
         drop(state);
         let weak = Rc::downgrade(self);
-        let weak2 = weak.clone();
-        let dialog = settings::dialog(
-            &config,
-            &layouts,
+        let on_change = {
+            let weak = weak.clone();
             move |c| {
                 if let Some(w) = weak.upgrade() {
                     let res = w.state.borrow_mut().set_config(c);
@@ -412,18 +410,49 @@ impl Window {
                     }
                     w.refresh_lessons();
                 }
-            },
-            move || {
-                if let Some(w) = weak2.upgrade() {
-                    let res = w.state.borrow_mut().store.reset();
-                    match res {
-                        Ok(()) => w.toast("İlerleme silindi"),
-                        Err(e) => w.toast(&format!("İlerleme silinemedi: {e}")),
+            }
+        };
+        let with_window =
+            |f: fn(&Rc<Window>, std::path::PathBuf)| -> Box<dyn Fn(std::path::PathBuf)> {
+                let weak = weak.clone();
+                Box::new(move |path| {
+                    if let Some(w) = weak.upgrade() {
+                        f(&w, path);
                     }
-                    w.refresh_lessons();
+                })
+            };
+        let progress = settings::ProgressActions {
+            reset: Box::new({
+                let weak = weak.clone();
+                move || {
+                    if let Some(w) = weak.upgrade() {
+                        let res = w.state.borrow_mut().store.reset();
+                        match res {
+                            Ok(()) => w.toast("İlerleme silindi"),
+                            Err(e) => w.toast(&format!("İlerleme silinemedi: {e}")),
+                        }
+                        w.refresh_lessons();
+                    }
                 }
-            },
-        );
+            }),
+            export: with_window(|w, path| {
+                let res = keyquest_data::export_to_file(w.state.borrow().store.as_ref(), &path);
+                match res {
+                    Ok(n) => w.toast(&format!("{n} oturum dışa aktarıldı")),
+                    Err(e) => w.toast(&format!("Dışa aktarılamadı: {e}")),
+                }
+            }),
+            import: with_window(|w, path| {
+                let res =
+                    keyquest_data::import_from_file(w.state.borrow_mut().store.as_mut(), &path);
+                match res {
+                    Ok(n) => w.toast(&format!("{n} oturum içe aktarıldı")),
+                    Err(e) => w.toast(&format!("İçe aktarılamadı, mevcut ilerleme korundu: {e}")),
+                }
+                w.refresh_lessons();
+            }),
+        };
+        let dialog = settings::dialog(&config, &layouts, on_change, progress);
         dialog.present(Some(&self.window));
     }
 

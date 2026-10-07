@@ -4,6 +4,8 @@
 use std::collections::{BTreeMap, HashMap};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use serde::{Deserialize, Serialize};
+
 use crate::finger::Finger;
 use crate::layout::Layout;
 use crate::metrics::{KeyStat, Summary};
@@ -32,7 +34,7 @@ pub struct SessionResult {
     pub summary: Summary,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LessonProgress {
     pub lesson_id: String,
     pub best_wpm: f64,
@@ -69,10 +71,101 @@ pub trait ProgressStore {
     /// Deletes all progress.
     fn reset(&mut self) -> StoreResult<()>;
 
+    /// Everything stored, for backing up or moving to another computer.
+    fn export_all(&self) -> StoreResult<ProgressExport>;
+
+    /// Replaces all progress with `data`, atomically.
+    fn import_all(&mut self, data: &ProgressExport) -> StoreResult<()>;
+
     /// Keys with the highest (smoothed) error rate, ignoring keys typed
     /// fewer than five times.
     fn weakest_keys(&self, layout: &str, limit: usize) -> StoreResult<Vec<KeyStat>> {
         Ok(rank_weakest(self.key_stats(layout)?, limit))
+    }
+}
+
+/// Version of the export format written by this build.
+pub const EXPORT_FORMAT: u32 = 1;
+
+/// All progress, as written to an export file.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProgressExport {
+    pub format: u32,
+    pub sessions: Vec<ExportedSession>,
+    pub lessons: Vec<LessonProgress>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExportedSession {
+    pub lesson_id: String,
+    pub layout: String,
+    pub started_at: i64,
+    pub duration_ms: u64,
+    pub chars_total: u32,
+    pub errors: u32,
+    pub wpm_net: f64,
+    pub accuracy: f64,
+    pub keys: Vec<ExportedKey>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExportedKey {
+    pub ch: char,
+    pub hits: u32,
+    pub misses: u32,
+    pub avg_ms: Option<u32>,
+}
+
+impl From<&KeyStat> for ExportedKey {
+    fn from(k: &KeyStat) -> ExportedKey {
+        ExportedKey {
+            ch: k.ch,
+            hits: k.hits,
+            misses: k.misses,
+            avg_ms: k.avg_ms,
+        }
+    }
+}
+
+impl From<&ExportedKey> for KeyStat {
+    fn from(k: &ExportedKey) -> KeyStat {
+        KeyStat {
+            ch: k.ch,
+            hits: k.hits,
+            misses: k.misses,
+            avg_ms: k.avg_ms,
+        }
+    }
+}
+
+impl ProgressExport {
+    /// Checks the format version and the value ranges before anything is
+    /// written.
+    pub fn validate(&self) -> Result<(), String> {
+        if self.format == 0 || self.format > EXPORT_FORMAT {
+            return Err(format!(
+                "desteklenmeyen dışa aktarma sürümü {} (en fazla {EXPORT_FORMAT})",
+                self.format
+            ));
+        }
+        let rate_ok = |v: f64| (0.0..=1.0).contains(&v);
+        for s in &self.sessions {
+            if s.lesson_id.is_empty() || s.layout.is_empty() {
+                return Err("oturumda ders veya düzen kimliği boş".into());
+            }
+            if !rate_ok(s.accuracy) || !s.wpm_net.is_finite() || s.wpm_net < 0.0 {
+                return Err(format!("{}: geçersiz hız veya doğruluk", s.lesson_id));
+            }
+        }
+        for l in &self.lessons {
+            if l.lesson_id.is_empty() || !rate_ok(l.best_acc) || !l.best_wpm.is_finite() {
+                return Err(format!("{}: geçersiz ders ilerlemesi", l.lesson_id));
+            }
+        }
+        Ok(())
     }
 }
 
@@ -231,6 +324,61 @@ impl ProgressStore for MemoryProgressStore {
         *self = MemoryProgressStore::default();
         Ok(())
     }
+
+    fn export_all(&self) -> StoreResult<ProgressExport> {
+        Ok(ProgressExport {
+            format: EXPORT_FORMAT,
+            sessions: self
+                .sessions
+                .iter()
+                .map(|(s, layout, keys)| ExportedSession {
+                    lesson_id: s.lesson_id.clone(),
+                    layout: layout.clone(),
+                    started_at: s.started_at,
+                    duration_ms: s.duration_ms,
+                    chars_total: s.chars_total,
+                    errors: s.errors,
+                    wpm_net: s.wpm_net,
+                    accuracy: s.accuracy,
+                    keys: keys.iter().map(ExportedKey::from).collect(),
+                })
+                .collect(),
+            lessons: self.lessons.values().cloned().collect(),
+        })
+    }
+
+    fn import_all(&mut self, data: &ProgressExport) -> StoreResult<()> {
+        data.validate().map_err(StoreError::new)?;
+        let sessions = data
+            .sessions
+            .iter()
+            .enumerate()
+            .map(|(i, s)| {
+                let summary = SessionSummary {
+                    id: i as i64 + 1,
+                    lesson_id: s.lesson_id.clone(),
+                    started_at: s.started_at,
+                    duration_ms: s.duration_ms,
+                    chars_total: s.chars_total,
+                    errors: s.errors,
+                    wpm_net: s.wpm_net,
+                    accuracy: s.accuracy,
+                };
+                (
+                    summary,
+                    s.layout.clone(),
+                    s.keys.iter().map(KeyStat::from).collect(),
+                )
+            })
+            .collect();
+        let lessons = data
+            .lessons
+            .iter()
+            .map(|l| (l.lesson_id.clone(), l.clone()))
+            .collect();
+        *self = MemoryProgressStore { sessions, lessons };
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -283,8 +431,24 @@ mod tests {
         assert_eq!(weak.iter().map(|k| k.ch).collect::<String>(), "ka");
         assert_eq!(weak[1].attempts(), 11);
         assert_eq!(st.history("tr-q", 7).unwrap().len(), 2);
+        let exported = st.export_all().unwrap();
+        assert_eq!(exported.sessions.len(), 3);
+        let mut copy = MemoryProgressStore::new();
+        copy.import_all(&exported).unwrap();
+        assert_eq!(copy.export_all().unwrap(), exported);
+        assert_eq!(copy.weakest_keys("tr-q", 10).unwrap(), weak);
+
         st.reset().unwrap();
         assert!(st.lesson_progress("l1").unwrap().is_none());
+
+        let mut bad = exported.clone();
+        bad.format = 99;
+        assert!(copy.import_all(&bad).is_err());
+        let mut bad = exported;
+        bad.sessions[0].accuracy = 2.0;
+        assert!(copy.import_all(&bad).is_err());
+        // A rejected import leaves the old data alone.
+        assert!(copy.lesson_progress("l1").unwrap().is_some());
     }
 
     #[test]

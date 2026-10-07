@@ -51,7 +51,8 @@ cargo run -p keyquest-gtk
 - `Esc` duraklatır; pencere odağı kaybedilince oturum kendiliğinden duraklar.
 - Sistem klavye düzeni seçilen düzenden farklı görünüyorsa üstte uyarı çıkar.
 - Menü: İstatistikler (net hız grafiği, en zayıf tuşlar ve parmaklar), Ayarlar
-  (düzen, boşluk başparmağı, hata davranışı, tema, metin boyutu, ilerlemeyi sıfırla).
+  (düzen, boşluk başparmağı, hata davranışı, tema, metin boyutu, ilerlemeyi
+  JSON olarak dışa/içe aktarma ve sıfırlama).
 
 ## AppImage
 
@@ -77,6 +78,8 @@ cargo run -p keyquest-cli -- lessons             # dersler ve kilit durumu
 cargo run -p keyquest-cli -- stroke "Ağaç@"      # tuş / parmak / değiştirici
 cargo run -p keyquest-cli -- stats               # gelişim, zayıf tuşlar ve parmaklar
 cargo run -p keyquest-cli -- --layout tr-f check # düzen ve ders dosyalarını doğrula
+cargo run -p keyquest-cli -- export yedek.json  # ilerlemeyi JSON'a aktar
+cargo run -p keyquest-cli -- import yedek.json --yes  # yedekten geri yükle
 ```
 
 Alıştırma sırasında: `Esc` duraklatır, `Ctrl+C` iptal eder. Sistem klavye

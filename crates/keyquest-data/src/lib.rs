@@ -3,11 +3,13 @@
 
 mod config;
 mod embedded;
+mod export;
 mod paths;
 mod repo;
 mod sqlite;
 
 pub use config::{Config, ConfigStore, Theme};
+pub use export::{MAX_IMPORT_SIZE, export_to_file, import_from_file, read_export};
 pub use paths::Paths;
 pub use repo::{LayoutRepository, LessonRepository, MAX_FILE_SIZE, Warning};
 pub use sqlite::SqliteProgressStore;
@@ -34,6 +36,10 @@ pub enum DataError {
     UnknownLayout(String),
     #[error(transparent)]
     Layout(#[from] keyquest_core::LayoutError),
+    #[error("ilerleme kaydı: {0}")]
+    Store(keyquest_core::StoreError),
+    #[error("içe aktarılacak dosya geçersiz: {0}")]
+    Import(String),
     #[error("ev dizini bulunamadı")]
     NoHome,
 }

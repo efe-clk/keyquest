@@ -1,8 +1,10 @@
 //! Settings dialog (FG-10).
 
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use adw::prelude::*;
+use gtk::gio;
 use keyquest_core::{ErrorMode, Hand};
 use keyquest_data::{Config, Theme};
 
@@ -26,13 +28,58 @@ fn combo(title: &str, subtitle: Option<&str>, items: &[&str], selected: usize) -
     row
 }
 
-/// `layouts` are (id, name) pairs. `on_change` receives every edited config;
-/// `on_reset` runs after the user confirms deleting their progress.
+/// What the "İlerleme" group does; the window owns the progress store.
+pub struct ProgressActions {
+    /// Runs after the user confirms deleting their progress.
+    pub reset: Box<dyn Fn()>,
+    /// Receives the file chosen for the export.
+    pub export: Box<dyn Fn(PathBuf)>,
+    /// Receives the chosen file after the user confirms replacing progress.
+    pub import: Box<dyn Fn(PathBuf)>,
+}
+
+fn json_dialog(title: &str) -> gtk::FileDialog {
+    let filter = gtk::FileFilter::new();
+    filter.set_name(Some("JSON"));
+    filter.add_pattern("*.json");
+    filter.add_mime_type("application/json");
+    let filters = gio::ListStore::new::<gtk::FileFilter>();
+    filters.append(&filter);
+    gtk::FileDialog::builder()
+        .title(title)
+        .modal(true)
+        .filters(&filters)
+        .default_filter(&filter)
+        .build()
+}
+
+fn action_row(
+    title: &str,
+    subtitle: &str,
+    button: &str,
+    css: &str,
+) -> (adw::ActionRow, gtk::Button) {
+    let row = adw::ActionRow::builder()
+        .title(title)
+        .subtitle(subtitle)
+        .build();
+    let b = gtk::Button::builder()
+        .label(button)
+        .valign(gtk::Align::Center)
+        .build();
+    if !css.is_empty() {
+        b.add_css_class(css);
+    }
+    row.add_suffix(&b);
+    (row, b)
+}
+
+/// `layouts` are (id, name) pairs. `on_change` receives every edited config.
 pub fn dialog(
     config: &Config,
     layouts: &[(String, String)],
     on_change: impl Fn(Config) + 'static,
-    on_reset: impl Fn() + 'static,
+    progress: ProgressActions,
 ) -> adw::PreferencesDialog {
     let current = Rc::new(std::cell::RefCell::new(config.clone()));
     let on_change = Rc::new(on_change);
@@ -127,16 +174,26 @@ pub fn dialog(
     look.add(&font_row);
 
     let data = adw::PreferencesGroup::builder().title("İlerleme").build();
-    let reset_row = adw::ActionRow::builder()
-        .title("İlerlemeyi sıfırla")
-        .subtitle("Tüm oturumlar, istatistikler ve açılan dersler silinir")
-        .build();
-    let reset = gtk::Button::builder()
-        .label("Sıfırla")
-        .valign(gtk::Align::Center)
-        .css_classes(["destructive-action"])
-        .build();
-    reset_row.add_suffix(&reset);
+    let (export_row, export) = action_row(
+        "Dışa aktar",
+        "Tüm oturumları ve istatistikleri bir JSON dosyasına kaydeder",
+        "Dışa aktar",
+        "",
+    );
+    let (import_row, import) = action_row(
+        "İçe aktar",
+        "Dışa aktarılmış bir dosyadan geri yükler; mevcut ilerlemenin yerine geçer",
+        "İçe aktar",
+        "",
+    );
+    let (reset_row, reset) = action_row(
+        "İlerlemeyi sıfırla",
+        "Tüm oturumlar, istatistikler ve açılan dersler silinir",
+        "Sıfırla",
+        "destructive-action",
+    );
+    data.add(&export_row);
+    data.add(&import_row);
     data.add(&reset_row);
 
     let page = adw::PreferencesPage::new();
@@ -146,7 +203,14 @@ pub fn dialog(
     let dialog = adw::PreferencesDialog::builder().title("Ayarlar").build();
     dialog.add(&page);
 
-    let on_reset = Rc::new(on_reset);
+    let ProgressActions {
+        reset: on_reset,
+        export: on_export,
+        import: on_import,
+    } = progress;
+    let parent = |d: &adw::PreferencesDialog| d.root().and_downcast::<gtk::Window>();
+
+    let on_reset: Rc<dyn Fn()> = Rc::from(on_reset);
     let weak = dialog.downgrade();
     reset.connect_clicked(move |_| {
         let alert = adw::AlertDialog::new(
@@ -159,6 +223,48 @@ pub fn dialog(
         let on_reset = on_reset.clone();
         alert.connect_response(Some("reset"), move |_, _| on_reset());
         alert.present(weak.upgrade().as_ref());
+    });
+
+    let on_export: Rc<dyn Fn(PathBuf)> = Rc::from(on_export);
+    let weak = dialog.downgrade();
+    export.connect_clicked(move |_| {
+        let Some(d) = weak.upgrade() else { return };
+        let files = json_dialog("İlerlemeyi dışa aktar");
+        files.set_initial_name(Some("keyquest-ilerleme.json"));
+        let on_export = on_export.clone();
+        files.save(parent(&d).as_ref(), gio::Cancellable::NONE, move |res| {
+            if let Some(path) = res.ok().and_then(|f| f.path()) {
+                on_export(path);
+            }
+        });
+    });
+
+    let on_import: Rc<dyn Fn(PathBuf)> = Rc::from(on_import);
+    let weak = dialog.downgrade();
+    import.connect_clicked(move |_| {
+        let Some(d) = weak.upgrade() else { return };
+        let on_import = on_import.clone();
+        let weak = d.downgrade();
+        json_dialog("İlerlemeyi içe aktar").open(
+            parent(&d).as_ref(),
+            gio::Cancellable::NONE,
+            move |res| {
+                let (Some(path), Some(d)) = (res.ok().and_then(|f| f.path()), weak.upgrade())
+                else {
+                    return;
+                };
+                let alert = adw::AlertDialog::new(
+                    Some("İlerleme değiştirilsin mi?"),
+                    Some("Mevcut tüm ilerleme, seçilen dosyadaki ilerlemeyle değiştirilecek."),
+                );
+                alert.add_responses(&[("cancel", "Vazgeç"), ("import", "İçe aktar")]);
+                alert.set_response_appearance("import", adw::ResponseAppearance::Destructive);
+                alert.set_default_response(Some("cancel"));
+                let on_import = on_import.clone();
+                alert.connect_response(Some("import"), move |_, _| on_import(path.clone()));
+                alert.present(Some(&d));
+            },
+        );
     });
     dialog
 }

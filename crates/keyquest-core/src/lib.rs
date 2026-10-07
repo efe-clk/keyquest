@@ -22,6 +22,6 @@ pub use lesson::{Lesson, LessonError};
 pub use metrics::{KeyStat, Metrics, Summary};
 pub use session::{CharStatus, ErrorMode, InputResult, Session, SessionState};
 pub use store::{
-    FingerStat, LessonProgress, LessonStatus, MemoryProgressStore, ProgressStore, SessionResult,
-    SessionSummary, StoreError, StoreResult,
+    ExportedKey, ExportedSession, FingerStat, LessonProgress, LessonStatus, MemoryProgressStore,
+    ProgressExport, ProgressStore, SessionResult, SessionSummary, StoreError, StoreResult,
 };
