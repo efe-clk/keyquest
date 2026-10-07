@@ -133,6 +133,14 @@ impl App {
 }
 
 fn main() -> ExitCode {
+    // Logs go to stderr; `RUST_LOG` picks the level. Warnings are already
+    // printed by the commands themselves, so the default is errors only.
+    let filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("error"));
+    tracing_subscriber::fmt()
+        .with_env_filter(filter)
+        .with_writer(std::io::stderr)
+        .init();
     match run() {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {

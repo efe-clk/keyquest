@@ -62,7 +62,10 @@ fn load<T>(
         Ok(item) => {
             items.insert(id(&item).to_owned(), item);
         }
-        Err(message) => warnings.push(Warning { source, message }),
+        Err(message) => {
+            tracing::warn!(%source, %message, "dosya atlandı");
+            warnings.push(Warning { source, message })
+        }
     };
     for (name, text) in embedded {
         add(format!("(gömülü) {name}"), Ok(text.to_string()));

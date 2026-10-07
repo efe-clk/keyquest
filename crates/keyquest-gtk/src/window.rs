@@ -275,6 +275,13 @@ impl Window {
             self.toast("Bu ders için alıştırma metni üretilemedi");
             return;
         }
+        // Blueprint 9.1: no highlight for such characters; the session goes on.
+        let mut missing: Vec<char> = target.chars().filter(|c| !layout.contains(*c)).collect();
+        missing.sort_unstable();
+        missing.dedup();
+        if !missing.is_empty() {
+            tracing::warn!(lesson = %lesson.id, layout = layout.id(), ?missing, "düzende karşılığı olmayan karakterler");
+        }
         let view = PracticeView::new(
             &lesson.title,
             &target,
@@ -317,6 +324,9 @@ impl Window {
             summary: summary.clone(),
         };
         let saved = self.state.borrow_mut().store.save_session(&result);
+        if let Err(e) = &saved {
+            tracing::error!(error = %e, "oturum kaydedilemedi");
+        }
         if let Err(e) = saved {
             // FOG-3: the result is still shown; the transaction left old data intact.
             self.toast(&format!("İlerleme kaydedilemedi: {e}"));

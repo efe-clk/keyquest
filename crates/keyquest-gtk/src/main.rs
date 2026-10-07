@@ -20,7 +20,18 @@ const CSS: &str = "
 .practice-text { line-height: 1.5; }
 ";
 
+/// Logs to stderr; `RUST_LOG` picks the level (default: warnings only).
+fn init_logging() {
+    let filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("warn"));
+    tracing_subscriber::fmt()
+        .with_env_filter(filter)
+        .with_writer(std::io::stderr)
+        .init();
+}
+
 fn main() -> glib::ExitCode {
+    init_logging();
     let app = adw::Application::builder().application_id(APP_ID).build();
     app.connect_startup(|_| {
         gtk::Window::set_default_icon_name(APP_ID);

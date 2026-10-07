@@ -73,8 +73,10 @@ fn migrate(conn: &mut Connection, path: Option<&Path>, migrations: &[&str]) -> R
             std::fs::remove_file(&bak).map_err(io_err(&bak))?;
         }
         conn.execute("VACUUM INTO ?1", [bak.to_string_lossy()])?;
+        tracing::info!(backup = %bak.display(), "migration öncesi yedek alındı");
     }
     for (i, sql) in migrations.iter().enumerate().skip(version as usize) {
+        tracing::info!(version = i + 1, "veritabanı migration'ı uygulanıyor");
         let tx = conn.transaction()?;
         tx.execute_batch(sql)?;
         tx.pragma_update(None, "user_version", i as i64 + 1)?;

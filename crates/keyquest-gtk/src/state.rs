@@ -40,7 +40,13 @@ impl State {
         let layouts = LayoutRepository::load(Some(&paths.user_layouts()));
         let lessons = LessonRepository::load(Some(&paths.user_lessons()));
         for w in layouts.warnings().iter().chain(lessons.warnings()) {
-            warnings.push(format!("{} atlandı: {}", w.source, w.message));
+            // The full path and error are in the log; the toast stays short.
+            let file = std::path::Path::new(&w.source)
+                .file_name()
+                .map(|f| f.to_string_lossy().into_owned())
+                .unwrap_or_else(|| w.source.clone());
+            let reason = w.message.lines().next().unwrap_or_default();
+            warnings.push(format!("{file} atlandı: {reason}"));
         }
         let store: Box<dyn ProgressStore> = match SqliteProgressStore::open(&paths.progress_db()) {
             Ok(s) => Box::new(s),
@@ -62,6 +68,7 @@ impl State {
             warnings,
         };
         state.rebuild_layouts();
+        tracing::info!(layout = state.layout.id(), "ayarlar ve veriler yüklendi");
         state
     }
 
