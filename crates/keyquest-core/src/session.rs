@@ -103,8 +103,9 @@ impl Session {
             self.cursor += 1;
         } else {
             self.statuses[self.cursor] = CharStatus::Wrong(ch);
-            if self.mode == ErrorMode::Continue {
-                self.cursor += 1;
+            match self.mode {
+                ErrorMode::Continue => self.cursor += 1,
+                ErrorMode::StopOnError => self.metrics.reject_last(),
             }
         }
         if self.cursor == self.target.len() {
@@ -248,6 +249,8 @@ mod tests {
         let r = s.result().unwrap();
         assert_eq!(r.duration, ms(300));
         assert_eq!(r.chars_total, 3);
+        // Two characters entered in 0.3 s; the rejected key adds no speed.
+        assert!((r.wpm_gross - (2.0 / 5.0) / (0.3 / 60.0)).abs() < 1e-6);
         assert_eq!(r.errors, 1);
         assert_eq!(r.uncorrected_errors, 0);
         assert!((r.accuracy - 2.0 / 3.0).abs() < 1e-9);

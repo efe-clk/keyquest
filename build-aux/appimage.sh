@@ -54,6 +54,9 @@ hook="$appdir/apprun-hooks/linuxdeploy-plugin-gtk.sh"
 grep -q '^export GTK_THEME=' "$hook"
 sed -i '/^export GTK_THEME=/d' "$hook"
 
+# Symbolic icons from the Adwaita theme, for desktops that do not have it.
+install -Dm644 -t "$appdir/usr/share/icons/hicolor/scalable/actions" "$root"/data/icons/symbolic/*.svg
+
 "$linuxdeploy" --appdir "$appdir" --output appimage
 
 ls -l "$root/target/"KeyQuest-*.AppImage

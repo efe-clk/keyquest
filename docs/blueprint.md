@@ -148,7 +148,7 @@ flowchart TB
 
 - **Sorumluluk:** Oturum boyunca ve sonunda ölçüm hesaplamak.
 - **Arayüzler:** `Metrics::record(ch, correct, latency)`, `metrics.summary() -> SessionResult`.
-- **İç yapı:** Brüt WPM = (yazılan karakter / 5) / dakika; net WPM = brüt WPM − (düzeltilmemiş hata / dakika); doğruluk = doğru vuruş / toplam vuruş. Tuş başına isabet, hata ve ortalama ulaşma süresi tutulur.
+- **İç yapı:** Brüt WPM = (yazılan karakter / 5) / dakika; net WPM = brüt WPM − (düzeltilmemiş hata / dakika); doğruluk = doğru vuruş / toplam vuruş. Tuş başına isabet, hata ve ortalama ulaşma süresi tutulur. "Hatada dur" modunda yanlış vuruş metne yazılmadığı için brüt WPM'e sayılmaz, yalnızca doğruluğu düşürür.
 - **Bağımlılıklar:** Yok.
 
 ### 7.4 LessonGenerator

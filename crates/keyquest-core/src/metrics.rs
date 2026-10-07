@@ -1,6 +1,7 @@
 //! Speed and accuracy measurement.
 //!
-//! - gross WPM = (keystrokes / 5) / minutes
+//! - gross WPM = (characters entered / 5) / minutes, where a keystroke the
+//!   session rejected (a wrong key in stop-on-error mode) enters nothing
 //! - net WPM   = gross WPM − uncorrected errors / minutes (never below 0)
 //! - accuracy  = correct keystrokes / all keystrokes
 
@@ -65,6 +66,7 @@ impl Summary {
 pub struct Metrics {
     keys: BTreeMap<char, KeyAcc>,
     keystrokes: u32,
+    rejected: u32,
     correct: u32,
 }
 
@@ -89,6 +91,12 @@ impl Metrics {
         }
     }
 
+    /// Marks the last keystroke as not entered into the text, so it does not
+    /// count towards speed (it still counts against accuracy).
+    pub fn reject_last(&mut self) {
+        self.rejected = (self.rejected + 1).min(self.keystrokes);
+    }
+
     pub fn keystrokes(&self) -> u32 {
         self.keystrokes
     }
@@ -96,7 +104,8 @@ impl Metrics {
     pub fn summary(&self, elapsed: Duration, uncorrected_errors: u32) -> Summary {
         let minutes = elapsed.as_secs_f64() / 60.0;
         let (gross, net) = if minutes > 0.0 {
-            let gross = (self.keystrokes as f64 / 5.0) / minutes;
+            let entered = self.keystrokes - self.rejected;
+            let gross = (entered as f64 / 5.0) / minutes;
             (
                 gross,
                 (gross - uncorrected_errors as f64 / minutes).max(0.0),
@@ -166,6 +175,22 @@ mod tests {
         assert_eq!(s.wpm_gross, 0.0);
         assert_eq!(s.wpm_net, 0.0);
         assert_eq!(s.accuracy, 1.0);
+    }
+
+    #[test]
+    fn rejected_keystrokes_do_not_count_as_speed() {
+        let mut m = Metrics::new();
+        for _ in 0..50 {
+            m.record('a', true, None);
+        }
+        for _ in 0..25 {
+            m.record('b', false, None);
+            m.reject_last();
+        }
+        let s = m.summary(Duration::from_secs(60), 0);
+        assert!((s.wpm_gross - 10.0).abs() < 1e-9);
+        assert_eq!(s.chars_total, 75);
+        assert!((s.accuracy - 50.0 / 75.0).abs() < 1e-9);
     }
 
     #[test]
