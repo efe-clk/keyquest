@@ -1,0 +1,30 @@
+name: AppImage
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  appimage:
+    # The AppImage runs on distributions with this glibc or newer.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GTK 4, libadwaita and packaging tools
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev file desktop-file-utils appstream
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: ./build-aux/appimage.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KeyQuest-AppImage
+          path: target/KeyQuest-*.AppImage
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/KeyQuest-*.AppImage
