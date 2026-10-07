@@ -1,0 +1,76 @@
+# Türkçe F düzeni (xkb: tr(f)).
+# Parmak eşlemesi kaynaklara göre küçük farklılıklar gösterebilir (R-3);
+# gerekirse bu dosyanın bir kopyası kullanıcı dizininde düzenlenebilir.
+format = 1
+id = "tr-f"
+name = "Türkçe F"
+
+[[rows]]
+keys = [
+  { code = "KEY_GRAVE", base = "+", shift = "*", finger = "L4" },
+  { code = "KEY_1", base = "1", shift = "!", finger = "L4" },
+  { code = "KEY_2", base = "2", shift = '"', finger = "L3" },
+  { code = "KEY_3", base = "3", shift = "^", altgr = "#", finger = "L2" },
+  { code = "KEY_4", base = "4", shift = "$", finger = "L1" },
+  { code = "KEY_5", base = "5", shift = "%", finger = "L1" },
+  { code = "KEY_6", base = "6", shift = "&", finger = "R1" },
+  { code = "KEY_7", base = "7", shift = "'", altgr = "{", finger = "R1" },
+  { code = "KEY_8", base = "8", shift = "(", altgr = "[", finger = "R2" },
+  { code = "KEY_9", base = "9", shift = ")", altgr = "]", finger = "R3" },
+  { code = "KEY_0", base = "0", shift = "=", altgr = "}", finger = "R4" },
+  { code = "KEY_MINUS", base = "/", shift = "?", altgr = '\', finger = "R4" },
+  { code = "KEY_EQUAL", base = "-", shift = "_", altgr = "|", finger = "R4" },
+]
+
+[[rows]]
+keys = [
+  { code = "KEY_Q", base = "f", shift = "F", altgr = "@", finger = "L4" },
+  { code = "KEY_W", base = "g", shift = "G", finger = "L3" },
+  { code = "KEY_E", base = "ğ", shift = "Ğ", finger = "L2" },
+  { code = "KEY_R", base = "ı", shift = "I", finger = "L1" },
+  { code = "KEY_T", base = "o", shift = "O", finger = "L1" },
+  { code = "KEY_Y", base = "d", shift = "D", altgr = "¥", finger = "R1" },
+  { code = "KEY_U", base = "r", shift = "R", finger = "R1" },
+  { code = "KEY_I", base = "n", shift = "N", finger = "R2" },
+  { code = "KEY_O", base = "h", shift = "H", finger = "R3" },
+  { code = "KEY_P", base = "p", shift = "P", altgr = "£", finger = "R4" },
+  { code = "KEY_LEFTBRACE", base = "q", shift = "Q", finger = "R4" },
+  { code = "KEY_RIGHTBRACE", base = "w", shift = "W", altgr = "~", finger = "R4" },
+]
+
+[[rows]]
+keys = [
+  { code = "KEY_A", base = "u", shift = "U", altgr = "æ", finger = "L4", home = true },
+  { code = "KEY_S", base = "i", shift = "İ", altgr = "ß", finger = "L3", home = true },
+  { code = "KEY_D", base = "e", shift = "E", altgr = "€", finger = "L2", home = true },
+  { code = "KEY_F", base = "a", shift = "A", finger = "L1", home = true },
+  { code = "KEY_G", base = "ü", shift = "Ü", finger = "L1" },
+  { code = "KEY_H", base = "t", shift = "T", altgr = "₺", finger = "R1" },
+  { code = "KEY_J", base = "k", shift = "K", finger = "R1", home = true },
+  { code = "KEY_K", base = "m", shift = "M", finger = "R2", home = true },
+  { code = "KEY_L", base = "l", shift = "L", finger = "R3", home = true },
+  { code = "KEY_SEMICOLON", base = "y", shift = "Y", finger = "R4", home = true },
+  { code = "KEY_APOSTROPHE", base = "ş", shift = "Ş", finger = "R4" },
+  { code = "KEY_BACKSLASH", base = "x", shift = "X", altgr = "`", finger = "R4" },
+]
+
+[[rows]]
+keys = [
+  { code = "KEY_102ND", base = "<", shift = ">", altgr = "|", finger = "L4" },
+  { code = "KEY_Z", base = "j", shift = "J", finger = "L4" },
+  { code = "KEY_X", base = "ö", shift = "Ö", finger = "L3" },
+  { code = "KEY_C", base = "v", shift = "V", finger = "L2" },
+  { code = "KEY_V", base = "c", shift = "C", finger = "L1" },
+  { code = "KEY_B", base = "ç", shift = "Ç", finger = "L1" },
+  { code = "KEY_N", base = "z", shift = "Z", finger = "R1" },
+  { code = "KEY_M", base = "s", shift = "S", finger = "R1" },
+  { code = "KEY_COMMA", base = "b", shift = "B", finger = "R2" },
+  { code = "KEY_DOT", base = ".", shift = ":", finger = "R3" },
+  { code = "KEY_SLASH", base = ",", shift = ";", finger = "R4" },
+]
+
+[modifiers]
+shift_left  = "L4"
+shift_right = "R4"
+altgr       = "R0"
+space       = "R0"

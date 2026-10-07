@@ -1,0 +1,8 @@
+format = 1
+id = "tr-q/06-tum-harfler"
+layout = "tr-q"
+title = "Tüm harfler, nokta ve virgül"
+keys = ["a", "b", "c", "ç", "d", "e", "f", "g", "ğ", "h", "ı", "i", "j", "k", "l", "m", "n", "o", "ö", "p", "r", "s", "ş", "t", "u", "ü", "v", "y", "z", "q", "w", "x", ".", ",", " "]
+words = ["mavi", "çiçek", "böcek", "zaman", "kebap", "ağaç", "güzel", "müzik", "köprü", "çocuk", "sabah", "bilgi", "pazar", "öğretmen", "değil", "değer", "büyük", "küçük", "gözlük", "vazo", "çanta", "zeytin", "pembe", "dağ", "öykü", "şöyle", "ağabey", "evet,", "tamam.", "peki,", "bugün", "yemek", "kitap", "pencere", "bahçe", "çay", "süt", "göz", "söz", "yüz", "web", "taksi"]
+target_wpm = 22
+target_accuracy = 0.94

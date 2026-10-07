@@ -1,0 +1,9 @@
+format = 1
+id = "tr-q/07-buyuk-harfler"
+layout = "tr-q"
+title = "Büyük harfler: karşı el Shift"
+keys = ["a", "b", "c", "ç", "d", "e", "f", "g", "ğ", "h", "ı", "i", "j", "k", "l", "m", "n", "o", "ö", "p", "r", "s", "ş", "t", "u", "ü", "v", "y", "z", ".", ",",
+        "A", "B", "Ç", "D", "E", "G", "H", "I", "İ", "K", "M", "O", "Ö", "R", "S", "Ş", "T", "U", "Ü", "V", "Z", " "]
+words = ["Ankara", "İzmir", "Bursa", "Konya", "Ege", "Türkiye", "Ali", "Ayşe", "Mehmet", "Zeynep", "Çanakkale", "Ömer", "Şule", "Iğdır", "İstanbul", "Kars", "Van", "Rize", "Ordu", "Muğla", "Üsküdar", "Dicle", "Hatay", "Sinop", "Edirne", "Trabzon", "Gaziantep", "Bolu", "Uşak", "Tokat", "ve", "ile", "bir", "çok", "güzel", "şehir."]
+target_wpm = 22
+target_accuracy = 0.94

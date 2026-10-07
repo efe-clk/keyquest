@@ -1,0 +1,8 @@
+format = 1
+id = "tr-q/05-i-o-n-t-y"
+layout = "tr-q"
+title = "Üst sıra devam: ı o n t y"
+keys = ["a", "s", "d", "f", "j", "k", "l", "ş", "e", "i", "r", "u", "g", "h", "ı", "o", "n", "t", "y", " "]
+words = ["yol", "ton", "oyun", "ayna", "kayın", "tutun", "insan", "yıl", "kısa", "anne", "tren", "orta", "yeni", "kitle", "yatak", "ırk", "kontrol", "otel", "son", "sorun", "konu", "tıkla", "alın", "hayat", "sınıf", "kutu", "tarih", "dost", "ortak", "renk", "kalın", "doktor", "oda", "kalite", "yeşil", "tatil", "yarın"]
+target_wpm = 20
+target_accuracy = 0.95

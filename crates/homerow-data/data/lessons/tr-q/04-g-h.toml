@@ -1,0 +1,8 @@
+format = 1
+id = "tr-q/04-g-h"
+layout = "tr-q"
+title = "Orta tuşlar: g ve h"
+keys = ["a", "s", "d", "f", "j", "k", "l", "ş", "e", "i", "r", "u", "g", "h", " "]
+words = ["his", "hafif", "gerek", "hal", "sahil", "hala", "haki", "gelir", "hedef", "gider", "hasar", "gel", "şehir", "fark", "gerekli", "hukuk", "gurur", "hile", "dergi", "sigara", "ihale", "kehle", "hakiki", "kuşak", "sergi", "ses"]
+target_wpm = 18
+target_accuracy = 0.95

@@ -1,0 +1,8 @@
+format = 1
+id = "tr-q/02-e-i"
+layout = "tr-q"
+title = "Yeni tuşlar: e ve i"
+keys = ["a", "s", "d", "f", "j", "k", "l", "ş", "e", "i", " "]
+words = ["el", "sel", "ilk", "dil", "sis", "kel", "deli", "kafes", "ekle", "silik", "ses", "kes", "esas", "ise", "sade", "diş", "iş", "eş", "kişi", "elle", "keşif", "dilek", "işle", "ile", "ilke", "sefil", "leke", "kese", "aile", "şelale", "kale", "dalak", "kasa"]
+target_wpm = 14
+target_accuracy = 0.95

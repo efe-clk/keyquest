@@ -1,0 +1,8 @@
+format = 1
+id = "tr-q/01-ana-sira"
+layout = "tr-q"
+title = "Ana sıra: a s d f j k l ş"
+keys = ["a", "s", "d", "f", "j", "k", "l", "ş", " "]
+words = ["aşk", "sal", "kas", "lal", "dal", "şal", "fal", "kal", "saf", "ad", "as", "al", "ak", "aş", "ada", "ala", "asa", "dalak", "sakla", "kafa", "kasa", "kalas", "dalda", "fala", "sala"]
+target_wpm = 12
+target_accuracy = 0.95

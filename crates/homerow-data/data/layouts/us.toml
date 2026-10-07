@@ -1,0 +1,73 @@
+# US (ANSI) düzeni (xkb: us).
+format = 1
+id = "us"
+name = "US"
+
+[[rows]]
+keys = [
+  { code = "KEY_GRAVE", base = "`", shift = "~", finger = "L4" },
+  { code = "KEY_1", base = "1", shift = "!", finger = "L4" },
+  { code = "KEY_2", base = "2", shift = "@", finger = "L3" },
+  { code = "KEY_3", base = "3", shift = "#", finger = "L2" },
+  { code = "KEY_4", base = "4", shift = "$", finger = "L1" },
+  { code = "KEY_5", base = "5", shift = "%", finger = "L1" },
+  { code = "KEY_6", base = "6", shift = "^", finger = "R1" },
+  { code = "KEY_7", base = "7", shift = "&", finger = "R1" },
+  { code = "KEY_8", base = "8", shift = "*", finger = "R2" },
+  { code = "KEY_9", base = "9", shift = "(", finger = "R3" },
+  { code = "KEY_0", base = "0", shift = ")", finger = "R4" },
+  { code = "KEY_MINUS", base = "-", shift = "_", finger = "R4" },
+  { code = "KEY_EQUAL", base = "=", shift = "+", finger = "R4" },
+]
+
+[[rows]]
+keys = [
+  { code = "KEY_Q", base = "q", shift = "Q", finger = "L4" },
+  { code = "KEY_W", base = "w", shift = "W", finger = "L3" },
+  { code = "KEY_E", base = "e", shift = "E", finger = "L2" },
+  { code = "KEY_R", base = "r", shift = "R", finger = "L1" },
+  { code = "KEY_T", base = "t", shift = "T", finger = "L1" },
+  { code = "KEY_Y", base = "y", shift = "Y", finger = "R1" },
+  { code = "KEY_U", base = "u", shift = "U", finger = "R1" },
+  { code = "KEY_I", base = "i", shift = "I", finger = "R2" },
+  { code = "KEY_O", base = "o", shift = "O", finger = "R3" },
+  { code = "KEY_P", base = "p", shift = "P", finger = "R4" },
+  { code = "KEY_LEFTBRACE", base = "[", shift = "{", finger = "R4" },
+  { code = "KEY_RIGHTBRACE", base = "]", shift = "}", finger = "R4" },
+  { code = "KEY_BACKSLASH", base = '\', shift = "|", finger = "R4" },
+]
+
+[[rows]]
+keys = [
+  { code = "KEY_A", base = "a", shift = "A", finger = "L4", home = true },
+  { code = "KEY_S", base = "s", shift = "S", finger = "L3", home = true },
+  { code = "KEY_D", base = "d", shift = "D", finger = "L2", home = true },
+  { code = "KEY_F", base = "f", shift = "F", finger = "L1", home = true },
+  { code = "KEY_G", base = "g", shift = "G", finger = "L1" },
+  { code = "KEY_H", base = "h", shift = "H", finger = "R1" },
+  { code = "KEY_J", base = "j", shift = "J", finger = "R1", home = true },
+  { code = "KEY_K", base = "k", shift = "K", finger = "R2", home = true },
+  { code = "KEY_L", base = "l", shift = "L", finger = "R3", home = true },
+  { code = "KEY_SEMICOLON", base = ";", shift = ":", finger = "R4", home = true },
+  { code = "KEY_APOSTROPHE", base = "'", shift = '"', finger = "R4" },
+]
+
+[[rows]]
+keys = [
+  { code = "KEY_Z", base = "z", shift = "Z", finger = "L4" },
+  { code = "KEY_X", base = "x", shift = "X", finger = "L3" },
+  { code = "KEY_C", base = "c", shift = "C", finger = "L2" },
+  { code = "KEY_V", base = "v", shift = "V", finger = "L1" },
+  { code = "KEY_B", base = "b", shift = "B", finger = "L1" },
+  { code = "KEY_N", base = "n", shift = "N", finger = "R1" },
+  { code = "KEY_M", base = "m", shift = "M", finger = "R1" },
+  { code = "KEY_COMMA", base = ",", shift = "<", finger = "R2" },
+  { code = "KEY_DOT", base = ".", shift = ">", finger = "R3" },
+  { code = "KEY_SLASH", base = "/", shift = "?", finger = "R4" },
+]
+
+[modifiers]
+shift_left  = "L4"
+shift_right = "R4"
+altgr       = "R0"
+space       = "R0"

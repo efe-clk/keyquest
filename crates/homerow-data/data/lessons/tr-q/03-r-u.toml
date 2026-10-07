@@ -1,0 +1,8 @@
+format = 1
+id = "tr-q/03-r-u"
+layout = "tr-q"
+title = "Üst sıra: r ve u"
+keys = ["a", "s", "d", "f", "j", "k", "l", "ş", "e", "i", "r", "u", " "]
+words = ["kur", "sur", "dur", "usul", "ders", "sure", "ulus", "fikir", "kira", "kadar", "kural", "kurs", "durak", "kirli", "dere", "sarf", "kuru", "kuşku", "uslu", "sakar", "reis", "seri", "keski", "ruj", "sular", "kader", "derslik", "ilk", "deli", "aile"]
+target_wpm = 16
+target_accuracy = 0.95
