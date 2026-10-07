@@ -25,3 +25,13 @@ jobs:
       - run: cargo run -q -p keyquest-cli -- --home "$RUNNER_TEMP/keyquest" check
       - run: desktop-file-validate data/io.github.efe_clk.KeyQuest.desktop
       - run: appstreamcli validate --no-net data/io.github.efe_clk.KeyQuest.metainfo.xml
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+      # Fails on dependencies with known security advisories (blueprint 14).
+      - run: cargo audit

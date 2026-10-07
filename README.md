@@ -113,7 +113,10 @@ theme = "system"         # system / light / dark
 cargo fmt --all --check
 cargo clippy --all-targets -- -D warnings
 cargo test
+cargo audit   # bilinen güvenlik açığı olan bağımlılık var mı (CI'da da çalışır)
 ```
+
+Log seviyesi `RUST_LOG` ile seçilir, örneğin `RUST_LOG=info cargo run -p keyquest-gtk`.
 
 Yeni gömülü düzen veya ders dosyası eklerken `crates/keyquest-data/src/embedded.rs`
 listesini de güncelleyin; bir test bunun unutulmasını yakalar.
