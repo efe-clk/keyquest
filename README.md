@@ -14,7 +14,7 @@ düzenlerini birinci sınıf destekler. Mimari ve yol haritası:
 | 3. Parmak rehberi: sanal klavye, el çizimi, Shift/AltGr vurgusu | ✔ |
 | 4. Kalıcılık: SQLite, migration'lar, ders kilidi, ayarlar | ✔ |
 | 5. İstatistik ekranı ve zayıf tuş modu | ✔ |
-| 6. Türkçe F / US düzenleri, kullanıcı TOML dizini, CI, Flatpak | Flatpak paketi hariç ✔ |
+| 6. Türkçe F / US düzenleri, kullanıcı TOML dizini, CI, AppImage | ✔ |
 
 ## Yapı
 
@@ -28,6 +28,7 @@ crates/
   keyquest-gtk/    Masaüstü uygulaması (GTK 4 + libadwaita), `keyquest` komutu
   keyquest-cli/    Terminal arayüzü ve veri dosyası doğrulama, `keyquest-cli` komutu
 data/              .desktop dosyası, AppStream metainfo, simge
+build-aux/         AppImage derleme betiği
 docs/blueprint.md
 ```
 
@@ -51,6 +52,19 @@ cargo run -p keyquest-gtk
 - Sistem klavye düzeni seçilen düzenden farklı görünüyorsa üstte uyarı çıkar.
 - Menü: İstatistikler (net hız grafiği, en zayıf tuşlar ve parmaklar), Ayarlar
   (düzen, boşluk başparmağı, hata davranışı, tema, metin boyutu, ilerlemeyi sıfırla).
+
+## AppImage
+
+```sh
+./build-aux/appimage.sh          # target/KeyQuest-<sürüm>-x86_64.AppImage
+chmod +x KeyQuest-*.AppImage && ./KeyQuest-*.AppImage
+```
+
+Betik linuxdeploy ve GTK eklentisini `target/appimage-tools/` altına indirir,
+GTK 4 ve libadwaita'yı pakete gömer. AppImage, derlendiği sistemdeki glibc ile
+aynı veya daha yeni glibc'ye sahip dağıtımlarda çalışır (Ubuntu 24.04'te
+derlenirse glibc ≥ 2.39). `v*` etiketi gönderildiğinde CI AppImage'ı derleyip
+GitHub Release'e ekler.
 
 ## Terminalde kullanım
 
