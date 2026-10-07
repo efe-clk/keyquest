@@ -48,11 +48,15 @@ cd "$root/target"
     --icon-file "$root/data/icons/$app_id.svg" \
     --plugin gtk
 
-# The GTK plugin forces GTK_THEME=Adwaita, which replaces libadwaita's own
-# stylesheet. libadwaita follows the system light/dark preference by itself.
+# The GTK plugin's start-up hook targets GTK 3 and gets two things wrong for us:
+# - GTK_THEME=Adwaita replaces libadwaita's own stylesheet (libadwaita follows
+#   the system light/dark preference by itself);
+# - GDK_BACKEND=x11 stops the app from opening on Wayland sessions without
+#   XWayland. GTK 4 picks Wayland or X11 on its own.
 hook="$appdir/apprun-hooks/linuxdeploy-plugin-gtk.sh"
 grep -q '^export GTK_THEME=' "$hook"
-sed -i '/^export GTK_THEME=/d' "$hook"
+grep -q '^export GDK_BACKEND=' "$hook"
+sed -i -e '/^export GTK_THEME=/d' -e '/^export GDK_BACKEND=/d' "$hook"
 
 # Symbolic icons from the Adwaita theme, for desktops that do not have it.
 install -Dm644 -t "$appdir/usr/share/icons/hicolor/scalable/actions" "$root"/data/icons/symbolic/*.svg

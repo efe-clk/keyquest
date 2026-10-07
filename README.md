@@ -63,7 +63,8 @@ chmod +x KeyQuest-*.AppImage && ./KeyQuest-*.AppImage
 Betik linuxdeploy ve GTK eklentisini `target/appimage-tools/` altına indirir,
 GTK 4 ve libadwaita'yı pakete gömer. AppImage, derlendiği sistemdeki glibc ile
 aynı veya daha yeni glibc'ye sahip dağıtımlarda çalışır (Ubuntu 24.04'te
-derlenirse glibc ≥ 2.39). `v*` etiketi gönderildiğinde CI AppImage'ı derleyip
+derlenirse glibc ≥ 2.39). Wayland ve X11 oturumlarında doğrudan çalışır; GTK
+veya Adwaita simge teması kurulu olmayan sistemlerde de denendi. `v*` etiketi gönderildiğinde CI AppImage'ı derleyip
 GitHub Release'e ekler.
 
 ## Terminalde kullanım
