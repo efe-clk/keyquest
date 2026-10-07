@@ -1,13 +1,13 @@
-# Homerow (çalışma adı) — Blueprint
+# KeyQuest — Blueprint
 
 - **Durum:** Taslak
-- **Sürüm:** 0.1
+- **Sürüm:** 0.2
 - **Tarih:** 07.10.2026
 - **Kapsam:** Linux masaüstü için 10 parmak klavye alıştırması uygulamasının amacı, özellikleri ve temel mimarisi
 
 ## 1. Özet
 
-Homerow, Linux masaüstünde 10 parmak (dokunarak) klavye kullanımını öğreten, sade bir masaüstü uygulamasıdır. Kullanıcı derslerle ana sıradan başlayıp tüm klavyeye ilerler; uygulama her karakter için **hangi elin hangi parmağıyla** basılacağını sanal klavye ve el çizimi üzerinde gösterir. Uygulama Rust ile, GTK 4 + libadwaita arayüzüyle yazılır ve üç katmandan oluşur: arayüz, arayüzden bağımsız çekirdek (oturum, ölçüm, ders üretimi) ve veri katmanı. Dersler ve klavye düzenleri TOML dosyalarında, kullanıcı ilerlemesi yerel bir SQLite veritabanında tutulur. Uygulama tamamen çevrimdışı çalışır.
+KeyQuest, Linux masaüstünde 10 parmak (dokunarak) klavye kullanımını öğreten, sade bir masaüstü uygulamasıdır. Kullanıcı derslerle ana sıradan başlayıp tüm klavyeye ilerler; uygulama her karakter için **hangi elin hangi parmağıyla** basılacağını sanal klavye ve el çizimi üzerinde gösterir. Uygulama Rust ile, GTK 4 + libadwaita arayüzüyle yazılır ve üç katmandan oluşur: arayüz, arayüzden bağımsız çekirdek (oturum, ölçüm, ders üretimi) ve veri katmanı. Dersler ve klavye düzenleri TOML dosyalarında, kullanıcı ilerlemesi yerel bir SQLite veritabanında tutulur. Uygulama tamamen çevrimdışı çalışır.
 
 ## 2. Bağlam ve problem
 
@@ -76,7 +76,7 @@ basit, modern görünümlü bir GNOME uygulaması.
 **Varsayımlar**
 
 - [V-1] Geliştirici tek kişi veya küçük bir ekip. → Daha büyük ekipte modüller ayrı crate'lere bölünebilir.
-- [V-2] Dağıtım öncelikle Flatpak (Flathub) ile yapılır. → Distro paketleri istenirse yalnızca paketleme işi eklenir, mimari değişmez.
+- [V-2] Dağıtım AppImage ile yapılır (GTK 4 ve libadwaita paketin içinde). → Distro paketleri istenirse yalnızca paketleme işi eklenir, mimari değişmez.
 - [V-3] Arayüz dili başlangıçta Türkçe, gettext ile çok dilli hale getirilebilir. → Yalnızca Türkçe kalacaksa gettext adımı atlanabilir.
 - [V-4] Kullanıcı başına yıllık veri küçüktür (bkz. 12. bölüm). → Tuş vuruşu bazlı ham kayıt istenirse depolama hesabı yeniden yapılmalı.
 
@@ -124,7 +124,7 @@ flowchart TB
 | Dosya formatı | TOML (`serde`, `toml`) | İnsan tarafından okunur/yazılır, yorum destekler |
 | Veritabanı | SQLite 3 (`rusqlite`, `bundled`) | Gömülü, atomik, sistem bağımlılığı yok |
 | Yollar | `directories` crate (XDG) | Linux dizin standartlarına uyum |
-| Dağıtım | Flatpak, GNOME runtime | Tüm dağıtımlarda tek paket |
+| Dağıtım | AppImage (linuxdeploy + GTK eklentisi) | Kurulum gerektirmeyen tek dosya; tüm dağıtımlarda çalışır |
 
 ## 7. Bileşenler
 
@@ -148,7 +148,7 @@ flowchart TB
 
 - **Sorumluluk:** Oturum boyunca ve sonunda ölçüm hesaplamak.
 - **Arayüzler:** `Metrics::record(ch, correct, latency)`, `metrics.summary() -> SessionResult`.
-- **İç yapı:** Brüt WPM = (yazılan karakter / 5) / dakika; net WPM = brüt WPM − (düzeltilmemiş hata / dakika); doğruluk = doğru vuruş / toplam vuruş. Tuş başına isabet, hata ve ortalama ulaşma süresi tutulur.
+- **İç yapı:** Brüt WPM = (yazılan karakter / 5) / dakika; net WPM = brüt WPM − (düzeltilmemiş hata / dakika); doğruluk = doğru vuruş / toplam vuruş. Tuş başına isabet, hata ve ortalama ulaşma süresi tutulur. "Hatada dur" modunda yanlış vuruş metne yazılmadığı için brüt WPM'e sayılmaz, yalnızca doğruluğu düşürür.
 - **Bağımlılıklar:** Yok.
 
 ### 7.4 LessonGenerator
@@ -252,9 +252,9 @@ Parmak istatistiği ayrıca saklanmaz; `key_stats.ch` → `Layout::stroke_for` i
 | Veri | Konum | Yaşam döngüsü |
 |---|---|---|
 | Varsayılan dersler ve düzenler | Binary içinde (`include_str!`) | Uygulama sürümüyle güncellenir |
-| Kullanıcı dersleri ve düzenleri | `~/.local/share/homerow/{lessons,layouts}/` | Kullanıcı yönetir; aynı `id` varsayılanı ezer |
-| Ayarlar | `~/.config/homerow/config.toml` | Kalıcı |
-| İlerleme | `~/.local/share/homerow/progress.db` | Kalıcı; ayarlardan sıfırlanabilir |
+| Kullanıcı dersleri ve düzenleri | `~/.local/share/keyquest/{lessons,layouts}/` | Kullanıcı yönetir; aynı `id` varsayılanı ezer |
+| Ayarlar | `~/.config/keyquest/config.toml` | Kalıcı |
+| İlerleme | `~/.local/share/keyquest/progress.db` | Kalıcı; ayarlardan sıfırlanabilir |
 
 - **Şema sürümleme:** `PRAGMA user_version`; açılışta sırayla uygulanan SQL migration'ları (`migrations/001_init.sql`, ...).
 - **Veritabanı ayarları:** `journal_mode=WAL`, `foreign_keys=ON`.
@@ -414,7 +414,7 @@ pub struct KeyStroke {
 ## 13. Çapraz kesen konular
 
 - **Hata yönetimi:** Çekirdek `Result` döner; arayüz hataları `AdwToast` ile gösterir. Hatalı ders/düzen dosyası uygulamayı çökertmez.
-- **Güvenlik:** Ağ erişimi yok; Flatpak izinleri en aza indirilir (ağ yok, yalnızca kendi veri dizinleri). Kullanıcı TOML dosyaları boyut ve alan doğrulamasından geçer.
+- **Güvenlik:** Uygulama ağ kodu içermez ve yalnızca kendi XDG dizinlerine yazar. AppImage sandbox sağlamaz; bu yüzden ağ ve dosya erişimi kod düzeyinde sınırlı tutulur. Kullanıcı TOML dosyaları boyut ve alan doğrulamasından geçer.
 - **Gözlemlenebilirlik:** `tracing` ile yapılandırılmış log; `RUST_LOG` ile seviye seçimi. Telemetri yok (FOG-7).
 - **Yapılandırma:** Öncelik sırası: varsayılanlar → `config.toml` → komut satırı argümanları (geliştirme için).
 - **Test:**
@@ -422,7 +422,7 @@ pub struct KeyStroke {
   - Entegrasyon: `SqliteProgressStore` geçici veritabanıyla; tüm gömülü TOML dosyalarının yüklenebildiği ve her dersin karakterlerinin düzende bulunduğu doğrulaması.
   - Arayüz: elle test listesi; ileride ekran görüntüsü testleri.
 - **Erişilebilirlik:** Parmak renkleri yalnızca renge dayanmaz; tuşlarda ve elde parmak etiketi de gösterilir (renk körlüğü). Yazı tipi boyutu ayarlanabilir.
-- **Dağıtım ve operasyon:** GitHub Actions ile `cargo fmt --check`, `cargo clippy`, `cargo test`; etiketli sürümlerde Flatpak derlemesi. Semantic versioning.
+- **Dağıtım ve operasyon:** GitHub Actions ile `cargo fmt --check`, `cargo clippy`, `cargo test`; etiketli sürümlerde AppImage derlemesi ve GitHub Release'e eklenmesi. Semantic versioning.
 
 ## 14. Evrim ve genişleme yolu
 
@@ -432,7 +432,7 @@ pub struct KeyStroke {
   - Yeni alıştırma modları (serbest metin, sayı sırası, kod yazma): `LessonGenerator` uygulamaları.
   - İkinci arayüz (TUI): çekirdeği yeniden kullanır.
   - Oyunlaştırma: `Session` olaylarını dinleyen ayrı bir modül.
-- **Bakım ve güncelleme:** Bağımlılıklar her sürümde `cargo update` + `cargo audit`; GNOME runtime yılda iki kez güncellenir. Veri formatı değişiklikleri yalnızca migration ile yapılır, eski veri asla elle silinmez.
+- **Bakım ve güncelleme:** Bağımlılıklar her sürümde `cargo update` + `cargo audit`; AppImage'a gömülen GTK/libadwaita sürümü derleme ortamıyla (CI'daki Ubuntu sürümü) birlikte güncellenir. Veri formatı değişiklikleri yalnızca migration ile yapılır, eski veri asla elle silinmez.
 
 ## 15. Riskler ve açık sorular
 
@@ -445,10 +445,11 @@ pub struct KeyStroke {
 | R-3 | Türkçe F düzeninde parmak eşlemesi kaynaklara göre farklılık gösterir | Orta / Düşük | Eşleme TOML'da; kullanıcı düzenleyebilir |
 | R-4 | gtk4-rs API değişiklikleri | Düşük / Orta | Sürümler sabitlenir; güncelleme kontrollü yapılır |
 | R-5 | Kelime listelerinin telif durumu | Düşük / Orta | Açık lisanslı veya kendi üretilmiş kelime listeleri kullanılır |
+| R-6 | AppImage, derlendiği sistemden eski glibc'li dağıtımlarda çalışmaz | Orta / Orta | Mümkün olan en eski desteklenen dağıtımda derlenir; minimum glibc sürümü sürüm notlarında belirtilir |
 
 **Açık sorular**
 
-- [S-1] Proje adı kesinleşecek mi (Homerow / Tenfold)? → Kullanıcı karar verir; dizin ve uygulama kimliği (`io.github.<kullanıcı>.Homerow`) buna bağlı.
+- [S-1] ~~Proje adı kesinleşecek mi?~~ → Karar verildi: **KeyQuest**. Uygulama kimliği `io.github.efe_clk.KeyQuest`, veri dizinleri `~/.config/keyquest` ve `~/.local/share/keyquest`.
 - [S-2] Hatada dur mu, devam mı varsayılan olacak? → Kullanıcı karar verir; ayar olarak ikisi de sunulur.
 - [S-3] Türkçe kelime listesi hangi kaynaktan alınacak? → Lisans incelemesi gerekiyor.
 
@@ -459,10 +460,11 @@ pub struct KeyStroke {
 3. **Parmak rehberi:** Sanal klavye (parmak renkleri, sıradaki tuş), el çizimi, Shift/AltGr vurgusu. — Bitti kriteri: Büyük harfte karşı el Shift ve parmağı doğru vurgulanıyor.
 4. **Kalıcılık:** SQLite, migration'lar, ders kilidi açma, ayarlar. — Bitti kriteri: Uygulama kapatılıp açıldığında ilerleme duruyor.
 5. **İstatistik ve zayıf tuş modu:** İstatistik ekranı, en zayıf tuş/parmak, ağırlıklı metin üretimi. — Bitti kriteri: En çok hata yapılan tuşlar alıştırma metninde belirgin şekilde daha sık geçiyor.
-6. **Yayın:** Türkçe F ve US düzenleri, kullanıcı TOML dizini, Flatpak paketi, CI. — Bitti kriteri: Flatpak paketi temiz bir sistemde kurulup çalışıyor.
+6. **Yayın:** Türkçe F ve US düzenleri, kullanıcı TOML dizini, AppImage paketi, CI. — Bitti kriteri: AppImage temiz bir sistemde indirilip çalıştırılabiliyor.
 
 ## Revizyon geçmişi
 
 | Sürüm | Tarih | Değişiklik |
 |---|---|---|
 | 0.1 | 07.10.2026 | İlk taslak |
+| 0.2 | 07.10.2026 | Proje adı KeyQuest olarak kesinleşti (S-1); dağıtım Flatpak yerine AppImage (V-2) |

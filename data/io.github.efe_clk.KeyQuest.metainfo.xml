@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.efe_clk.KeyQuest</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>KeyQuest</name>
+  <summary>Learn touch typing with the right finger for every key</summary>
+  <summary xml:lang="tr">Her tuş için doğru parmakla 10 parmak klavye öğrenin</summary>
+  <description>
+    <p>
+      KeyQuest teaches touch typing step by step, from the home row to the whole
+      keyboard. For every character it shows which key to press, with which
+      finger of which hand, and which Shift or AltGr to hold.
+    </p>
+    <p xml:lang="tr">
+      KeyQuest, ana sıradan tüm klavyeye adım adım 10 parmak yazmayı öğretir. Her
+      karakter için hangi tuşa, hangi elin hangi parmağıyla basılacağını ve hangi
+      Shift ya da AltGr tuşunun tutulacağını gösterir.
+    </p>
+    <ul>
+      <li>Turkish Q, Turkish F and US layouts</li>
+      <li>Speed, accuracy and per-key statistics</li>
+      <li>Practice generated from your weakest keys</li>
+      <li>Works offline, no telemetry</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.efe_clk.KeyQuest.desktop</launchable>
+  <url type="homepage">https://github.com/efe-clk/keyquest</url>
+  <url type="bugtracker">https://github.com/efe-clk/keyquest/issues</url>
+  <developer id="io.github.efe_clk">
+    <name>efe-clk</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+  <supports>
+    <control>keyboard</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <releases>
+    <release version="0.1.0" date="2026-10-07">
+      <description>
+        <p>First release.</p>
+      </description>
+    </release>
+  </releases>
+</component>

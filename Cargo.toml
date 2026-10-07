@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/homerow-core", "crates/homerow-data", "crates/homerow-cli"]
+members = ["crates/keyquest-core", "crates/keyquest-data", "crates/keyquest-cli", "crates/keyquest-gtk"]
 
 [workspace.package]
 version = "0.1.0"
@@ -9,8 +9,8 @@ license = "GPL-3.0-or-later"
 repository = "https://github.com/efe-clk/keyquest"
 
 [workspace.dependencies]
-homerow-core = { path = "crates/homerow-core" }
-homerow-data = { path = "crates/homerow-data" }
+keyquest-core = { path = "crates/keyquest-core" }
+keyquest-data = { path = "crates/keyquest-data" }
 serde = { version = "1", features = ["derive"] }
 toml = "1"
 thiserror = "2"

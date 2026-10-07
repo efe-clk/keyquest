@@ -1,0 +1,8 @@
+format = 1
+id = "tr-f/01-ana-sira"
+layout = "tr-f"
+title = "Ana sıra: u i e a k m l y"
+keys = ["u", "i", "e", "a", "k", "m", "l", "y", " "]
+words = ["elma", "kim", "mal", "kal", "ilk", "yem", "kaya", "yel", "ekim", "kalem", "alay", "eylem", "maya", "ilim", "imla", "emek", "kaymak", "yamuk", "lale", "mum", "ulu", "kule", "mil", "aile"]
+target_wpm = 12
+target_accuracy = 0.95

@@ -1,0 +1,18 @@
+[package]
+name = "keyquest-cli"
+description = "KeyQuest için terminal arayüzü: alıştırma, istatistik ve veri dosyası doğrulama"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "keyquest-cli"
+path = "src/main.rs"
+
+[dependencies]
+keyquest-core.workspace = true
+keyquest-data.workspace = true
+crossterm.workspace = true
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

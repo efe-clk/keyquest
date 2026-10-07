@@ -1,0 +1,8 @@
+format = 1
+id = "us/03-all-letters"
+layout = "us"
+title = "All letters, period and comma"
+keys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", ".", ",", " "]
+words = ["the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "keyboard", "practice", "finger", "home", "row", "type", "with", "every", "word", "yes,", "done.", "next", "build", "small", "habit", "zone", "value", "music", "point"]
+target_wpm = 20
+target_accuracy = 0.94

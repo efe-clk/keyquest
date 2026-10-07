@@ -1,0 +1,8 @@
+format = 1
+id = "us/02-e-i-r-u"
+layout = "us"
+title = "Top row reach: e i r u"
+keys = ["a", "s", "d", "f", "j", "k", "l", ";", "e", "i", "r", "u", " "]
+words = ["red", "rise", "use", "sure", "fire", "free", "rule", "dear", "read", "ride", "side", "like", "lake", "desk", "silk", "seed", "feel", "ruler", "sea", "idea", "rural", "jar", "fur", "used", "fears"]
+target_wpm = 15
+target_accuracy = 0.95

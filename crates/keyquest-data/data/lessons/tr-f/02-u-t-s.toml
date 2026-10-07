@@ -1,0 +1,8 @@
+format = 1
+id = "tr-f/02-u-t-s"
+layout = "tr-f"
+title = "Yeni tuşlar: ü t ş"
+keys = ["u", "i", "e", "a", "k", "m", "l", "y", "ü", "t", "ş", " "]
+words = ["tüm", "taş", "kuş", "ateş", "işte", "eşya", "yaşam", "tuş", "ülke", "kütük", "ütü", "üye", "ümit", "teşekkül", "ilmek", "yetmiş", "kale", "elma", "kalem", "tamam", "yatak", "kitle"]
+target_wpm = 14
+target_accuracy = 0.95

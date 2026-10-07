@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: GTK 4 ve libadwaita geliştirme paketleri
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev desktop-file-utils appstream
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -20,4 +22,16 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test --all-targets
-      - run: cargo run -q -p homerow-cli -- --home "$RUNNER_TEMP/homerow" check
+      - run: cargo run -q -p keyquest-cli -- --home "$RUNNER_TEMP/keyquest" check
+      - run: desktop-file-validate data/io.github.efe_clk.KeyQuest.desktop
+      - run: appstreamcli validate --no-net data/io.github.efe_clk.KeyQuest.metainfo.xml
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+      # Fails on dependencies with known security advisories (blueprint 14).
+      - run: cargo audit
