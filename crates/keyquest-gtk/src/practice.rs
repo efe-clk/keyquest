@@ -240,6 +240,7 @@ impl PracticeView {
     }
 
     fn type_char(&self, ch: char) {
+        let started = Instant::now();
         let now = self.now();
         let result = {
             let mut s = self.session.borrow_mut();
@@ -275,6 +276,8 @@ impl PracticeView {
             }
         }
         self.refresh();
+        // FOG-1 budget is one frame (16 ms) from key press to redraw.
+        tracing::debug!(us = started.elapsed().as_micros() as u64, "tuş işlendi");
         self.check_finished();
     }
 
