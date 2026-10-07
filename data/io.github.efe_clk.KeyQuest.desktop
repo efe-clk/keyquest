@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=KeyQuest
+GenericName=Typing Tutor
+GenericName[tr]=Klavye Alıştırması
+Comment=Learn touch typing with the right finger for every key
+Comment[tr]=Her tuş için doğru parmakla 10 parmak klavye öğrenin
+Exec=keyquest
+Icon=io.github.efe_clk.KeyQuest
+Terminal=false
+Categories=Education;GTK;
+Keywords=typing;keyboard;touch;tutor;klavye;on;parmak;
+StartupNotify=true
+DBusActivatable=false

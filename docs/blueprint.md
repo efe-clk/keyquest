@@ -1,13 +1,13 @@
-# Homerow (çalışma adı) — Blueprint
+# KeyQuest — Blueprint
 
 - **Durum:** Taslak
-- **Sürüm:** 0.1
+- **Sürüm:** 0.2
 - **Tarih:** 07.10.2026
 - **Kapsam:** Linux masaüstü için 10 parmak klavye alıştırması uygulamasının amacı, özellikleri ve temel mimarisi
 
 ## 1. Özet
 
-Homerow, Linux masaüstünde 10 parmak (dokunarak) klavye kullanımını öğreten, sade bir masaüstü uygulamasıdır. Kullanıcı derslerle ana sıradan başlayıp tüm klavyeye ilerler; uygulama her karakter için **hangi elin hangi parmağıyla** basılacağını sanal klavye ve el çizimi üzerinde gösterir. Uygulama Rust ile, GTK 4 + libadwaita arayüzüyle yazılır ve üç katmandan oluşur: arayüz, arayüzden bağımsız çekirdek (oturum, ölçüm, ders üretimi) ve veri katmanı. Dersler ve klavye düzenleri TOML dosyalarında, kullanıcı ilerlemesi yerel bir SQLite veritabanında tutulur. Uygulama tamamen çevrimdışı çalışır.
+KeyQuest, Linux masaüstünde 10 parmak (dokunarak) klavye kullanımını öğreten, sade bir masaüstü uygulamasıdır. Kullanıcı derslerle ana sıradan başlayıp tüm klavyeye ilerler; uygulama her karakter için **hangi elin hangi parmağıyla** basılacağını sanal klavye ve el çizimi üzerinde gösterir. Uygulama Rust ile, GTK 4 + libadwaita arayüzüyle yazılır ve üç katmandan oluşur: arayüz, arayüzden bağımsız çekirdek (oturum, ölçüm, ders üretimi) ve veri katmanı. Dersler ve klavye düzenleri TOML dosyalarında, kullanıcı ilerlemesi yerel bir SQLite veritabanında tutulur. Uygulama tamamen çevrimdışı çalışır.
 
 ## 2. Bağlam ve problem
 
@@ -252,9 +252,9 @@ Parmak istatistiği ayrıca saklanmaz; `key_stats.ch` → `Layout::stroke_for` i
 | Veri | Konum | Yaşam döngüsü |
 |---|---|---|
 | Varsayılan dersler ve düzenler | Binary içinde (`include_str!`) | Uygulama sürümüyle güncellenir |
-| Kullanıcı dersleri ve düzenleri | `~/.local/share/homerow/{lessons,layouts}/` | Kullanıcı yönetir; aynı `id` varsayılanı ezer |
-| Ayarlar | `~/.config/homerow/config.toml` | Kalıcı |
-| İlerleme | `~/.local/share/homerow/progress.db` | Kalıcı; ayarlardan sıfırlanabilir |
+| Kullanıcı dersleri ve düzenleri | `~/.local/share/keyquest/{lessons,layouts}/` | Kullanıcı yönetir; aynı `id` varsayılanı ezer |
+| Ayarlar | `~/.config/keyquest/config.toml` | Kalıcı |
+| İlerleme | `~/.local/share/keyquest/progress.db` | Kalıcı; ayarlardan sıfırlanabilir |
 
 - **Şema sürümleme:** `PRAGMA user_version`; açılışta sırayla uygulanan SQL migration'ları (`migrations/001_init.sql`, ...).
 - **Veritabanı ayarları:** `journal_mode=WAL`, `foreign_keys=ON`.
@@ -448,7 +448,7 @@ pub struct KeyStroke {
 
 **Açık sorular**
 
-- [S-1] Proje adı kesinleşecek mi (Homerow / Tenfold)? → Kullanıcı karar verir; dizin ve uygulama kimliği (`io.github.<kullanıcı>.Homerow`) buna bağlı.
+- [S-1] ~~Proje adı kesinleşecek mi?~~ → Karar verildi: **KeyQuest**. Uygulama kimliği `io.github.efe_clk.KeyQuest`, veri dizinleri `~/.config/keyquest` ve `~/.local/share/keyquest`.
 - [S-2] Hatada dur mu, devam mı varsayılan olacak? → Kullanıcı karar verir; ayar olarak ikisi de sunulur.
 - [S-3] Türkçe kelime listesi hangi kaynaktan alınacak? → Lisans incelemesi gerekiyor.
 
@@ -466,3 +466,4 @@ pub struct KeyStroke {
 | Sürüm | Tarih | Değişiklik |
 |---|---|---|
 | 0.1 | 07.10.2026 | İlk taslak |
+| 0.2 | 07.10.2026 | Proje adı KeyQuest olarak kesinleşti (S-1) |

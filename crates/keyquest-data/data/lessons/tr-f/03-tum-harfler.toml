@@ -1,0 +1,8 @@
+format = 1
+id = "tr-f/03-tum-harfler"
+layout = "tr-f"
+title = "Tüm harfler, nokta ve virgül"
+keys = ["a", "b", "c", "ç", "d", "e", "f", "g", "ğ", "h", "ı", "i", "j", "k", "l", "m", "n", "o", "ö", "p", "r", "s", "ş", "t", "u", "ü", "v", "y", "z", ".", ",", " "]
+words = ["mavi", "çiçek", "böcek", "zaman", "kebap", "ağaç", "güzel", "müzik", "köprü", "çocuk", "sabah", "bilgi", "pazar", "öğretmen", "değil", "büyük", "küçük", "gözlük", "çanta", "zeytin", "evet,", "tamam.", "bugün", "yemek", "kitap", "pencere", "bahçe", "çay", "süt", "göz", "yüz", "dağ", "deniz", "orman"]
+target_wpm = 20
+target_accuracy = 0.94

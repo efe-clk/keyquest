@@ -1,4 +1,4 @@
-# Homerow (çalışma adı)
+# KeyQuest
 
 Linux masaüstü için 10 parmak klavye alıştırması. Her karakter için hangi tuşa,
 hangi elin hangi parmağıyla basılacağını gösterir; Türkçe Q ve Türkçe F
@@ -10,38 +10,58 @@ düzenlerini birinci sınıf destekler. Mimari ve yol haritası:
 | Aşama (blueprint 16) | Durum |
 |---|---|
 | 1. Çekirdek: `Session`, `Metrics`, `Layout`, `stroke_for`, testler | ✔ |
-| 2. İlk arayüz (GTK 4 + libadwaita) | Bekliyor. Şimdilik terminal arayüzü (`homerow-cli`) var |
-| 3. Parmak rehberi (sanal klavye, el çizimi) | Bekliyor. Terminalde metin olarak gösteriliyor |
-| 4. Kalıcılık: SQLite, migration'lar, ders kilidi, ayarlar | Veri katmanı ✔ (ayar ekranı GTK ile gelecek) |
-| 5. İstatistik ve zayıf tuş modu | Çekirdek ve terminal ✔ |
-| 6. Türkçe F / US düzenleri, kullanıcı TOML dizini, CI | Düzenler, kullanıcı dizini ve CI ✔; Flatpak bekliyor |
+| 2. İlk arayüz: ana pencere, alıştırma, sonuç ekranı, Türkçe Q dersleri | ✔ |
+| 3. Parmak rehberi: sanal klavye, el çizimi, Shift/AltGr vurgusu | ✔ |
+| 4. Kalıcılık: SQLite, migration'lar, ders kilidi, ayarlar | ✔ |
+| 5. İstatistik ekranı ve zayıf tuş modu | ✔ |
+| 6. Türkçe F / US düzenleri, kullanıcı TOML dizini, CI, Flatpak | Flatpak paketi hariç ✔ |
 
 ## Yapı
 
 ```
 crates/
-  homerow-core/   UI ve depolamadan bağımsız çekirdek (oturum, ölçüm, düzen, ders üretimi)
-  homerow-data/   Gömülü + kullanıcı TOML dosyaları, ayarlar, SQLite ilerleme kaydı
-    data/layouts/   tr-q, tr-f, us
-    data/lessons/   Türkçe Q dersleri
-    migrations/     SQL şema migration'ları
-  homerow-cli/    Terminal arayüzü
+  keyquest-core/   UI ve depolamadan bağımsız çekirdek (oturum, ölçüm, düzen, ders üretimi)
+  keyquest-data/   Gömülü + kullanıcı TOML dosyaları, ayarlar, SQLite ilerleme kaydı
+    data/layouts/    tr-q, tr-f, us
+    data/lessons/    Ders dosyaları (düzen başına bir dizin)
+    migrations/      SQL şema migration'ları
+  keyquest-gtk/    Masaüstü uygulaması (GTK 4 + libadwaita), `keyquest` komutu
+  keyquest-cli/    Terminal arayüzü ve veri dosyası doğrulama, `keyquest-cli` komutu
+data/              .desktop dosyası, AppStream metainfo, simge
 docs/blueprint.md
 ```
 
-Bağımlılık yönü içeri doğrudur: `homerow-cli` (ileride GTK arayüzü) →
-`homerow-core` ← `homerow-data`.
+Bağımlılık yönü içeri doğrudur: `keyquest-gtk` / `keyquest-cli` →
+`keyquest-core` ← `keyquest-data`.
+
+## Masaüstü uygulaması
+
+Gerekenler: GTK ≥ 4.14 ve libadwaita ≥ 1.5 geliştirme paketleri
+(Debian/Ubuntu: `libgtk-4-dev libadwaita-1-dev`, Fedora: `gtk4-devel libadwaita-devel`).
+
+```sh
+cargo run -p keyquest-gtk
+```
+
+- Ders listesi: dersler sırayla açılır; "Devam et" sıradaki açık derse götürür.
+- Alıştırma: sıradaki tuş sanal klavyede, sorumlu parmak el çiziminde vurgulanır.
+  Büyük harf ve AltGr karakterlerinde değiştirici tuş ve onu tutan parmak da
+  vurgulanır (kesik çizgi). Tuşlar parmak rengiyle boyanır ve parmak etiketi taşır.
+- `Esc` duraklatır; pencere odağı kaybedilince oturum kendiliğinden duraklar.
+- Sistem klavye düzeni seçilen düzenden farklı görünüyorsa üstte uyarı çıkar.
+- Menü: İstatistikler (net hız grafiği, en zayıf tuşlar ve parmaklar), Ayarlar
+  (düzen, boşluk başparmağı, hata davranışı, tema, metin boyutu, ilerlemeyi sıfırla).
 
 ## Terminalde kullanım
 
 ```sh
-cargo run -p homerow-cli -- practice            # sıradaki açık ders
-cargo run -p homerow-cli -- practice --weak     # zayıf tuş alıştırması
-cargo run -p homerow-cli -- practice --text "Şu an yazıyorum."
-cargo run -p homerow-cli -- lessons             # dersler ve kilit durumu
-cargo run -p homerow-cli -- stroke "Ağaç@"      # tuş / parmak / değiştirici
-cargo run -p homerow-cli -- stats               # gelişim, zayıf tuşlar ve parmaklar
-cargo run -p homerow-cli -- --layout tr-f check # düzen ve ders dosyalarını doğrula
+cargo run -p keyquest-cli -- practice            # sıradaki açık ders
+cargo run -p keyquest-cli -- practice --weak     # zayıf tuş alıştırması
+cargo run -p keyquest-cli -- practice --text "Şu an yazıyorum."
+cargo run -p keyquest-cli -- lessons             # dersler ve kilit durumu
+cargo run -p keyquest-cli -- stroke "Ağaç@"      # tuş / parmak / değiştirici
+cargo run -p keyquest-cli -- stats               # gelişim, zayıf tuşlar ve parmaklar
+cargo run -p keyquest-cli -- --layout tr-f check # düzen ve ders dosyalarını doğrula
 ```
 
 Alıştırma sırasında: `Esc` duraklatır, `Ctrl+C` iptal eder. Sistem klavye
@@ -52,13 +72,13 @@ karaktere göre yapılır, KR-5).
 
 | Veri | Konum |
 |---|---|
-| Ayarlar | `~/.config/homerow/config.toml` |
-| İlerleme | `~/.local/share/homerow/progress.db` (yedek: `progress.db.bak`) |
-| Kullanıcı düzenleri | `~/.local/share/homerow/layouts/*.toml` |
-| Kullanıcı dersleri | `~/.local/share/homerow/lessons/<düzen>/*.toml` |
+| Ayarlar | `~/.config/keyquest/config.toml` |
+| İlerleme | `~/.local/share/keyquest/progress.db` (yedek: `progress.db.bak`) |
+| Kullanıcı düzenleri | `~/.local/share/keyquest/layouts/*.toml` |
+| Kullanıcı dersleri | `~/.local/share/keyquest/lessons/<düzen>/*.toml` |
 
 Kullanıcı dosyası, aynı `id`'ye sahip gömülü dosyanın yerini alır. Hatalı
-dosyalar uyarıyla atlanır. Format örnekleri `crates/homerow-data/data/` altında.
+dosyalar uyarıyla atlanır. Format örnekleri `crates/keyquest-data/data/` altında.
 
 `config.toml` örneği:
 
@@ -77,5 +97,5 @@ cargo clippy --all-targets -- -D warnings
 cargo test
 ```
 
-Yeni gömülü düzen veya ders dosyası eklerken `crates/homerow-data/src/embedded.rs`
+Yeni gömülü düzen veya ders dosyası eklerken `crates/keyquest-data/src/embedded.rs`
 listesini de güncelleyin; bir test bunun unutulmasını yakalar.

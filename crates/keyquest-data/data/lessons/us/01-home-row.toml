@@ -1,0 +1,8 @@
+format = 1
+id = "us/01-home-row"
+layout = "us"
+title = "Home row: a s d f j k l ;"
+keys = ["a", "s", "d", "f", "j", "k", "l", ";", " "]
+words = ["as", "sad", "dad", "fall", "lad", "flask", "alas", "salad", "ask", "add", "all", "lass", "fad", "dads", "falls", "asks", "fads", "lads", "salsa", "flak"]
+target_wpm = 12
+target_accuracy = 0.95
