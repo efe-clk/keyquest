@@ -66,7 +66,9 @@ GTK 4 ve libadwaita'yı pakete gömer. AppImage, derlendiği sistemdeki glibc il
 aynı veya daha yeni glibc'ye sahip dağıtımlarda çalışır (Ubuntu 24.04'te
 derlenirse glibc ≥ 2.39). Wayland ve X11 oturumlarında doğrudan çalışır; GTK
 veya Adwaita simge teması kurulu olmayan sistemlerde de denendi. `v*` etiketi gönderildiğinde CI AppImage'ı derleyip
-GitHub Release'e ekler.
+GitHub Release'e ekler. Aynı iş akışı GitHub'da elle de başlatılabilir
+(Actions → AppImage → Run workflow); "tag" alanına `v0.1.0` gibi bir sürüm
+yazılırsa etiket ve Release o commit'ten oluşturulur.
 
 ## Terminalde kullanım
 
