@@ -11,6 +11,8 @@ env:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # A hung package mirror would otherwise hold the job for 6 hours.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: GTK 4 ve libadwaita geliştirme paketleri
@@ -28,6 +30,8 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
+    # A hung package mirror would otherwise hold the job for 6 hours.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: taiki-e/install-action@v2

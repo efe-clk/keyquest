@@ -17,6 +17,8 @@ jobs:
   appimage:
     # The AppImage runs on distributions with this glibc or newer.
     runs-on: ubuntu-24.04
+    # A hung package mirror would otherwise hold the job for 6 hours.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - name: Install GTK 4, libadwaita and packaging tools
